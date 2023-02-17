@@ -1,36 +1,38 @@
 {
-  "name": "mvp-vendr-api",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "@types/bcrypt": "^5.0.0",
-    "@types/body-parser": "^1.19.2",
-    "@types/cors": "^2.8.13",
-    "@types/dotenv": "^8.2.0",
-    "@types/express": "^4.17.17",
-    "@types/jsonwebtoken": "^9.0.1",
-    "@types/mongoose": "^5.11.97",
-    "bcrypt": "^5.1.0",
-    "body-parser": "^1.20.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "helmet": "^6.0.1",
-    "jsonwebtoken": "^9.0.0",
-    "mongoose": "^6.9.2"
-  },
-  "devDependencies": {
-    "@types/jest": "^29.4.0",
-    "@types/supertest": "^2.0.12",
-    "jest": "^29.4.3",
-    "supertest": "^6.3.3",
-    "ts-jest": "^29.0.5"
-  }
+    "name": "mvp-vendr-api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "jest"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/bcrypt": "^5.0.0",
+        "@types/body-parser": "^1.19.2",
+        "@types/cors": "^2.8.13",
+        "@types/dotenv": "^8.2.0",
+        "@types/express": "^4.17.17",
+        "@types/jsonwebtoken": "^9.0.1",
+        "@types/mongoose": "^5.11.97",
+        "bcrypt": "^5.1.0",
+        "body-parser": "^1.20.1",
+        "cookie-parser": "^1.4.6",
+        "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
+        "express": "^4.18.2",
+        "helmet": "^6.0.1",
+        "jsonwebtoken": "^9.0.0",
+        "mongoose": "^6.9.2"
+    },
+    "devDependencies": {
+        "@types/cookie-parser": "^1.4.3",
+        "@types/jest": "^29.4.0",
+        "@types/supertest": "^2.0.12",
+        "jest": "^29.4.3",
+        "supertest": "^6.3.3",
+        "ts-jest": "^29.0.5"
+    }
 }
