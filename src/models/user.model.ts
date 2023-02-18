@@ -45,9 +45,10 @@ const usersSchema = new Schema(
     deposit: {
       type: Schema.Types.Number,
       default: 0,
+      required: true,
     },
     role: {
-      type: Schema.Types.ObjectId,
+      type: Schema.Types.String,
       ref: 'Role',
       required: true,
       index: true,
