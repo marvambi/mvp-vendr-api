@@ -1,37 +1,40 @@
-import { Request, Response } from 'express';
-import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
-import asyncHandler from 'express-async-handler';
-import dotenv from 'dotenv';
+import { Request, Response } from "express";
+import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import asyncHandler from "express-async-handler";
+import dotenv from "dotenv";
 dotenv.config();
-import { User, UserInput } from '../models/user.model';
-import Token from '../models/token.model';
+import { User, UserInput } from "../models/user.model";
+import Token from "../models/token.model";
 // eslint-disable-next-line max-len
-const secretz: any = !process.env.JWT_SECRET === undefined ? process.env.JWT_SECRET : '5ytjjfbPK8ZJ';
+const secretz: any =
+  !process.env.JWT_SECRET === undefined
+    ? process.env.JWT_SECRET
+    : "5ytjjfbPK8ZJ";
 // Generate Token
 const generateToken = (id: string) => {
-  return jwt.sign({ id }, secretz, { expiresIn: '1d' });
+  return jwt.sign({ id }, secretz, { expiresIn: "1d" });
 };
 let salt: string;
 const hashPassword = (password: string) => {
-  salt = crypto.randomBytes(16).toString('hex');
+  salt = crypto.randomBytes(16).toString("hex");
 
   // Hashing salt & password with 100 iterations, 64 length and sha512 digest
   return crypto.pbkdf2Sync(password, salt, 100, 64, `sha512`).toString(`hex`);
 };
 
 const createUser = asyncHandler(async (req: any, res: any) => {
-  const { email, enabled, username, password, role, deposit } = req.body;
+  const { deposit, email, enabled, password, role, username } = req.body;
 
   // Validation
   if (!email || !username || !password || !role) {
     return res.status(422).json({
-      message: 'The fields email, username, password and role are required',
+      message: "The fields email, username, password and role are required",
     });
   }
   if (password.length < 6) {
     return res.status(400).json({
-      message: 'Password must be up to 6 characters',
+      message: "Password must be up to 6 characters",
     });
   }
 
@@ -40,7 +43,7 @@ const createUser = asyncHandler(async (req: any, res: any) => {
 
   if (userExists) {
     return res.status(400).json({
-      message: 'Email has already been registered',
+      message: "Email has already been registered",
     });
   }
 
@@ -60,15 +63,15 @@ const createUser = asyncHandler(async (req: any, res: any) => {
   const token = generateToken(userCreated._id);
   // Send HTTP-only cookie
 
-  res.cookie('token', token, {
-    path: '/',
+  res.cookie("token", token, {
+    path: "/",
     httpOnly: true,
     expires: new Date(Date.now() + 1000 * 86400), // 1 day
-    sameSite: 'none',
+    sameSite: "none",
     secure: true,
   });
   if (userCreated) {
-    const { _id, email, enabled, username, role } = userCreated;
+    const { _id, email, enabled, role, username } = userCreated;
 
     return res.status(201).json({
       data: {
@@ -82,22 +85,22 @@ const createUser = asyncHandler(async (req: any, res: any) => {
     });
   } else {
     res.status(400).json({
-      message: 'Invalid user data',
+      message: "Invalid user data",
     });
   }
 });
 
 const getAllUsers = async (_req: Request, res: Response) => {
-  const users = await User.find().populate('role').sort('-createdAt').exec();
+  const users = await User.find().populate("role").sort("-createdAt").exec();
 
   if (!users.length) {
     return res.status(400).json({
-      message: 'No users found',
+      message: "No users found",
     });
   }
 
   const data = users.map((us) => {
-    const { _id, email, enabled, username, role } = us;
+    const { _id, email, enabled, role, username } = us;
 
     return { _id, email, enabled, username, user_role: role };
   });
@@ -108,12 +111,12 @@ const getAllUsers = async (_req: Request, res: Response) => {
 const getUser = asyncHandler(async (req: any, res: any) => {
   const { id } = req.params;
 
-  const user = await User.findOne({ _id: id }).populate('role').exec();
+  const user = await User.findOne({ _id: id }).populate("role").exec();
 
   if (!user) {
     return res.status(404).json({ message: `User with id "${id}" not found.` });
   }
-  const { _id, email, enabled, username, role } = user;
+  const { _id, email, enabled, role, username } = user;
 
   return res.status(200).json({
     data: {
@@ -128,7 +131,7 @@ const getUser = asyncHandler(async (req: any, res: any) => {
 
 const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { enabled, username, role } = req.body;
+  const { enabled, role, username } = req.body;
 
   const user = await User.findOne({ _id: id });
 
@@ -138,7 +141,9 @@ const updateUser = async (req: Request, res: Response) => {
 
   if (!username || !role) {
     // eslint-disable-next-line max-len
-    return res.status(422).json({ message: 'The fields fullName and role are required' });
+    return res
+      .status(422)
+      .json({ message: "The fields fullName and role are required" });
   }
 
   await User.updateOne({ _id: id }, { enabled, username, role });
@@ -153,7 +158,7 @@ const deleteUser = async (req: Request, res: Response) => {
 
   await User.findByIdAndDelete(id);
 
-  return res.status(200).json({ message: 'User deleted successfully.' });
+  return res.status(200).json({ message: "User deleted successfully." });
 };
 
 // Login User
@@ -163,7 +168,7 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   // Validate Request
   if (!email || !password) {
     res.status(400);
-    throw new Error('Please add email and password');
+    throw new Error("Please add email and password");
   }
 
   // Check if user exists
@@ -171,7 +176,7 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
 
   if (!user) {
     return res.status(400).json({
-      message: 'User not found, please signup',
+      message: "User not found, please signup",
     });
   }
 
@@ -179,23 +184,25 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   // eslint-disable-next-line max-len
   const { salt } = user;
   // eslint-disable-next-line max-len
-  const hash = crypto.pbkdf2Sync(password, salt, 100, 64, `sha512`).toString(`hex`);
+  const hash = crypto
+    .pbkdf2Sync(password, salt, 100, 64, `sha512`)
+    .toString(`hex`);
   const passwordIsCorrect = hash === user.password ? true : false;
 
   //   Generate Token
   const token = generateToken(user._id);
 
   // Send HTTP-only cookie
-  res.cookie('token', token, {
-    path: '/',
+  res.cookie("token", token, {
+    path: "/",
     httpOnly: true,
     expires: new Date(Date.now() + 1000 * 86400), // 1 day
-    sameSite: 'none',
+    sameSite: "none",
     secure: true,
   });
 
   if (user && passwordIsCorrect) {
-    const { _id, email, enabled, username, role } = user;
+    const { _id, email, enabled, role, username } = user;
 
     return res.status(200).json({
       data: {
@@ -208,32 +215,32 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
       },
     });
   } else {
-    return res.status(400).json({ message: 'Invalid email or password' });
+    return res.status(400).json({ message: "Invalid email or password" });
   }
 });
 
 // Logout User
 const logout = asyncHandler(async (_req: any, res: any) => {
-  res.cookie('token', '', {
-    path: '/',
+  res.cookie("token", "", {
+    path: "/",
     httpOnly: true,
     expires: new Date(0),
-    sameSite: 'none',
+    sameSite: "none",
     secure: true,
   });
-  return res.status(200).json({ message: 'Successfully Logged Out' });
+  return res.status(200).json({ message: "Successfully Logged Out" });
 });
 
 // Get Login Status
 const loginStatus = asyncHandler(async (req: any, res: any) => {
   const { token } = req.cookies;
 
-  console.log('Cookies: ', token);
+  console.log("Cookies: ", token);
   if (!token) {
     return res.json(false);
   }
   // Verify Token
-  const verified = jwt.verify(token, '5ytjjfbPK8ZJ');
+  const verified = jwt.verify(token, "5ytjjfbPK8ZJ");
 
   if (verified) {
     return res.json(true);
@@ -262,7 +269,7 @@ const loginStatus = asyncHandler(async (req: any, res: any) => {
 //   console.log(resetToken);
 
 //   // Hash token before saving to DB
-//   // eslint-disable-next-line max-len
+// eslint-disable-next-line max-len,
 //   const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
 //   // Save Token to DB
@@ -279,7 +286,7 @@ const loginStatus = asyncHandler(async (req: any, res: any) => {
 //   // Reset Email
 //   const message = `
 //       <h2>Hello ${user?.fullName}</h2>
-//       <p>Please use the url below to reset your password</p>  
+//       <p>Please use the url below to reset your password</p>
 //       <p>This reset link is valid for only 30minutes.</p>
 //       <a href=${resetUrl} clicktracking=off>${resetUrl}</a>
 //       <p>Regards...</p>
@@ -305,7 +312,10 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   // Hash token, then compare to Token in DB
   // eslint-disable-next-line max-len
-  const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+  const hashedToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
 
   // fIND tOKEN in DB
   const userToken = await Token.findOne({
@@ -315,7 +325,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   if (!userToken) {
     res.status(404);
-    throw new Error('Invalid or Expired Token');
+    throw new Error("Invalid or Expired Token");
   }
 
   // Find user
@@ -327,7 +337,7 @@ const resetPassword = asyncHandler(async (req, res) => {
 
   await user?.save();
   res.status(200).json({
-    message: 'Password Reset Successful, Please Login',
+    message: "Password Reset Successful, Please Login",
   });
 });
 
@@ -338,29 +348,42 @@ const changePassword = asyncHandler(async (req, res) => {
 
   if (!user) {
     res.status(400);
-    throw new Error('User not found, please signup');
+    throw new Error("User not found, please signup");
   }
   //Validate
   if (!oldPassword || !password) {
-    res.status(400).json({ message: 'Please add old and new password' });
+    res.status(400).json({ message: "Please add old and new password" });
   }
 
   const { salt } = user;
   // check if old password matches password in DB
 
   // eslint-disable-next-line max-len
-  const oldhash = crypto.pbkdf2Sync(oldPassword, salt, 100, 64, `sha512`).toString(`hex`);
+  const oldhash = crypto
+    .pbkdf2Sync(oldPassword, salt, 100, 64, `sha512`)
+    .toString(`hex`);
   const passwordIsCorrect = oldhash === user.password ? true : false;
 
   // Save new password
   if (user && passwordIsCorrect) {
     user.password = hashPassword(password);
     await user.save();
-    res.status(200).send('Password change successful');
+    res.status(200).send("Password change successful");
   } else {
-    res.status(400).json({ message: 'Your old password is incorrect' });
+    res.status(400).json({ message: "Your old password is incorrect" });
   }
 });
 
 // eslint-disable-next-line max-len
-export { createUser, deleteUser, getAllUsers, getUser, updateUser, loginUser, logout, loginStatus, changePassword, resetPassword };
+export {
+  createUser,
+  deleteUser,
+  getAllUsers,
+  getUser,
+  updateUser,
+  loginUser,
+  logout,
+  loginStatus,
+  changePassword,
+  resetPassword,
+};
