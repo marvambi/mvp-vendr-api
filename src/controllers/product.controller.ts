@@ -46,6 +46,8 @@ export const deleteProduct = asyncHandler(async (req: any, res: any) => {
   const product = await Product.findById(req.params.id);
   // if product doesnt exist
 
+  console.log("User: ", req.user);
+
   if (!product) {
     res.status(404).send({ message: "Product not found" });
   }

@@ -2,7 +2,7 @@ import asyncHandler from "express-async-handler";
 import { User } from "../models/user.model";
 import jwt from "jsonwebtoken";
 
-const protect = asyncHandler(async (req: any, res: any, next) => {
+const authr = asyncHandler(async (req: any, res: any, next) => {
   try {
     const { token } = req.cookies;
 
@@ -29,4 +29,4 @@ const protect = asyncHandler(async (req: any, res: any, next) => {
   }
 });
 
-export default protect;
+export default authr;

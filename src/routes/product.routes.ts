@@ -1,5 +1,5 @@
 import { Router } from "express";
-import protect from "../middlewares/auth.middleware";
+import authr from "../middlewares/auth.middleware";
 import getAProd, {
   createProduct,
   getProducts,
@@ -10,11 +10,11 @@ import getAProd, {
 const productRoute = () => {
   const router = Router();
 
-  router.post("/product", protect, createProduct);
+  router.post("/product", authr, createProduct);
   router.patch("/product/:id", updateProduct);
   router.get("/product", getProducts);
   router.get("/product/:id", getAProd.getAProd);
-  router.delete("/product/:id", deleteProduct);
+  router.delete("/product/:id", authr, deleteProduct);
   return router;
 };
 
