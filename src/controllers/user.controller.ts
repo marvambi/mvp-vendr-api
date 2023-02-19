@@ -26,7 +26,7 @@ const createUser = asyncHandler(async (req: any, res: any) => {
   // Validation
   if (!email || !username || !password || !role) {
     return res.status(422).json({
-      message: 'The fields email, fullName, password and role are required',
+      message: 'The fields email, username, password and role are required',
     });
   }
   if (password.length < 6) {
