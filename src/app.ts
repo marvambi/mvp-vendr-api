@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import { userRoute } from './routes/user.routes';
+import { productRoute } from './routes/product.routes';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(cors(corsOptions));
 app.use(helmet());
 
 app.use('/', userRoute());
+app.use('/', productRoute());
 app.get('/', (_req, res) => {
   const checkSystem = (server: string, client: string) => {
     return `${server} & ${client} are great combinations 😇`;
