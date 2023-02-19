@@ -49,7 +49,7 @@ const usersSchema = new Schema(
     },
     role: {
       type: Schema.Types.String,
-      ref: 'Role',
+      default: 'seller',
       required: true,
       index: true,
     },

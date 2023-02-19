@@ -1,7 +1,11 @@
 import mongoose, { ConnectOptions } from 'mongoose';
 import config from '../config';
 
-export const connect = async (): Promise<void> => {
+const connect = async () => {
+  console.log("Trying...")
+  // return mongoose.connect(config.mongodbURI
+  // ).then(() => console.log('Connected'))
+  //   .catch(e => console.log('Error: ', e))
   try {
     const options: ConnectOptions = {
       autoIndex: false, // Don't build indexes
@@ -18,3 +22,5 @@ export const connect = async (): Promise<void> => {
     process.exit(1);
   }
 };
+
+export default connect;
