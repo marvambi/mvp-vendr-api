@@ -8,8 +8,7 @@ export const createProduct = asyncHandler(async (req: any, res: any) => {
 
   //   Validation
   if (!productName || !amountAvailable || !cost || !description || !sellerId) {
-    res.status(400);
-    throw new Error("Please fill in all fields");
+    res.status(400).send({ message: "Please fill in all fields" });
   }
   // Create Product
   const product = await Product.create({
@@ -37,8 +36,7 @@ const getAProd = asyncHandler(async (req: any, res: any) => {
   // if product doesnt exist
 
   if (!product) {
-    res.status(404);
-    throw new Error("Product not found");
+    res.status(404).send({ message: "Product not found" });
   }
   res.status(200).json(product);
 });
@@ -49,34 +47,30 @@ export const deleteProduct = asyncHandler(async (req: any, res: any) => {
   // if product doesnt exist
 
   if (!product) {
-    res.status(404);
-    throw new Error("Product not found");
+    res.status(404).send({ message: "Product not found" });
   }
   // Match product to its user
-  if (product.sellerId.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error("User not authorized");
+  if (product?.sellerId.toString() !== req.user.id) {
+    res.status(401).send({ message: "User not authorized" });
   }
-  await product.remove();
+  await product?.remove();
   res.status(200).json({ message: "Product deleted." });
 });
 
 // Update Product
 export const updateProduct = asyncHandler(async (req: any, res: any) => {
-  const { description, productName, cost, amountAvailable } = req.body;
+  const { amountAvailable, cost, description, productName } = req.body;
   const { id } = req.params;
 
   const product = await Product.findById(id);
 
   // if product doesnt exist
   if (!product) {
-    res.status(404);
-    throw new Error("Product not found");
+    res.status(404).send({ message: "Product not found" });
   }
   // Match product to its user
-  if (product.sellerId.toString() !== req.user.id) {
-    res.status(401);
-    throw new Error("User not authorized");
+  if (product?.sellerId.toString() !== req.user.id) {
+    res.status(401).send({ message: "User not authorized" });
   }
 
   // Update Product
