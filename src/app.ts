@@ -7,11 +7,7 @@ import { userRoute } from './routes/user.routes';
 
 const app = express();
 
-// const HOST = process.env.HOST || 'http://localhost';
-// const PORT = parseInt(process.env.PORT || '80');
-
 const corsOptions = {
-  // eslint-disable-next-line max-len
   allowed_origins: ['http://localhost:3000'],
   credentials: true,
 };
@@ -34,9 +30,5 @@ app.get('/', (_req, res) => {
 
   return res.json({ message: `'Wow! 👉' ${combination}` });
 });
-
-// app.listen(PORT, () => {
-//   console.log(`Application started ${HOST}: ${PORT} 🎉`);
-// });
 
 export default app;
