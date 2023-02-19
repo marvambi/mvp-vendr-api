@@ -27,7 +27,7 @@ const userRoute = () => {
 
   router.post("/users/login", loginUser);
 
-  router.post("/users/logout", logout);
+  router.post("/users/logout", authr, logout);
 
   router.get("/users/login-status/:id", authr, loginStatus);
 
