@@ -1,13 +1,24 @@
 // tests/users.test.ts
+import mongoose from 'mongoose';
+import request from 'supertest';
+import app from '../src/app';
+import connect from '../src/utils/db';
 
-import { User } from "../src/models/user.model";
-
-describe("User model", () => {
-  test("should have username, password, deposit, and role properties", async () => {
-    const user = await User.create({ username: "johndoe", email: "johny@jj.com", password: "password123", deposite: 10, role: "buyer" });
-    expect(user.username).toEqual("johndoe");
-    expect(user.password).toEqual("password123");
-    expect(user.deposit).toEqual(10);
-    expect(user.role).toEqual("buyer");
-  });
-});
+const server = app.listen(4040)
+describe("GET /", () => {
+  beforeAll(async () => {
+    await connect();
+  })
+  afterAll(() => {
+    mongoose.connection.close(true);
+    server.close()
+  })
+  describe("when default user base url is requested", () => {
+    // should respond with a 200 status code
+    test("should respond with a 200 status code", async () => {
+      const response = await request(app).get("/");
+      expect(response.statusCode).toBe(200)
+    })
+    // should specify json as the content type in the http header.
+  })
+})

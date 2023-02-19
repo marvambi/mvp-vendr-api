@@ -4,12 +4,11 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import { userRoute } from './routes/user.routes';
-import connect from './utils/db';
 
 const app = express();
 
-const HOST = process.env.HOST || 'http://localhost';
-const PORT = parseInt(process.env.PORT || '80');
+// const HOST = process.env.HOST || 'http://localhost';
+// const PORT = parseInt(process.env.PORT || '80');
 
 const corsOptions = {
   // eslint-disable-next-line max-len
@@ -23,9 +22,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors(corsOptions));
 app.use(helmet());
 
-app.use('/api', userRoute);
-app.get('/', (req, res) => {
-  console.log("Here: ", typeof (req));
+app.use('/', userRoute());
+app.get('/', (_req, res) => {
   const checkSystem = (server: string, client: string) => {
     return `${server} & ${client} are great combinations 😇`;
   };
@@ -37,10 +35,8 @@ app.get('/', (req, res) => {
   return res.json({ message: `'Wow! 👉' ${combination}` });
 });
 
-app.listen(PORT, async () => {
-  await connect();
-
-  console.log(`Application started @ URL ${HOST}:${PORT} 🎉`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Application started ${HOST}: ${PORT} 🎉`);
+// });
 
 export default app;

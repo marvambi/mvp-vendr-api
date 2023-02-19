@@ -2,10 +2,6 @@ import mongoose, { ConnectOptions } from 'mongoose';
 import config from '../config';
 
 const connect = async () => {
-  console.log("Trying...")
-  // return mongoose.connect(config.mongodbURI
-  // ).then(() => console.log('Connected'))
-  //   .catch(e => console.log('Error: ', e))
   try {
     const options: ConnectOptions = {
       autoIndex: false, // Don't build indexes
@@ -16,7 +12,6 @@ const connect = async () => {
     };
 
     await mongoose.connect(config.mongodbURI, options);
-    console.log('Connected to MongoDB');
   } catch (error) {
     console.error("Error: ", error);
     process.exit(1);
