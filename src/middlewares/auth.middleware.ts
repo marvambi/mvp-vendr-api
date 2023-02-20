@@ -15,7 +15,6 @@ const authr = asyncHandler(async (req: any, res: any, next) => {
     // Get user id from token
     // es-lint disable next line
 
-    console.log("Verified: ", verified);
     const user = await User.findById(verified.id).select("-password");
 
     if (!user) {
