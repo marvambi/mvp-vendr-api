@@ -165,10 +165,17 @@ const deleteUser = async (req: Request, res: Response) => {
 const loginUser = asyncHandler(async (req: any, res: any) => {
   const { email, password } = req.body;
 
+  // Validate multiple login session
+
+  const { token } = req.cookies;
+
+  // Verify Token
+  const jwt_secret = process.env?.JWT_SECRET ?? "5ytjjfbPK8ZJ";
+  const verified: any = jwt.verify(token, jwt_secret);
+
   // Validate Request
   if (!email || !password) {
-    res.status(400);
-    throw new Error("Please add email and password");
+    return res.status(400).json("Please add email and password");
   }
 
   // Check if user exists
@@ -180,8 +187,12 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
     });
   }
 
+  if (user.id == verified.id) {
+    // Already logged in
+    return res.status(400).json({ message: "Multiple login session active!" });
+  }
+
   // User exists, check if password is correct
-  // eslint-disable-next-line max-len
   const { salt } = user;
   // eslint-disable-next-line max-len
   const hash = crypto
@@ -189,20 +200,20 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
     .toString(`hex`);
   const passwordIsCorrect = hash === user.password ? true : false;
 
-  //   Generate Token
-  const token = generateToken(user._id);
-
-  // Send HTTP-only cookie
-  res.cookie("token", token, {
-    path: "/",
-    httpOnly: true,
-    expires: new Date(Date.now() + 1000 * 86400), // 1 day
-    sameSite: "none",
-    secure: true,
-  });
-
   if (user && passwordIsCorrect) {
     const { _id, email, enabled, role, username } = user;
+
+    //   Generate Token
+    const token = generateToken(_id);
+
+    // Send HTTP-only cookie
+    res.cookie("token", token, {
+      path: "/",
+      httpOnly: true,
+      expires: new Date(Date.now() + 1000 * 86400), // 1 day
+      sameSite: "none",
+      secure: true,
+    });
 
     return res.status(200).json({
       data: {
