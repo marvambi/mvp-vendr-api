@@ -28,10 +28,10 @@ const resetUserDeposit = asyncHandler(async (req: any, res: any) => {
 
     await User.updateOne({ _id }, { deposit: 0 });
 
-    const userUpdated = await User.findById(id);
+    // const userUpdated = await User.findById(id);
 
     return res.status(200).json({
-      data: { deposit: userUpdated?.deposit, username: userUpdated?.username },
+      message: "You have successfully reset your deposit account",
     });
   } catch (error) {
     return res.status(500).json({ error });

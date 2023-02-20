@@ -39,13 +39,11 @@ const createUserDeposit = asyncHandler(async (req: any, res: any) => {
 
     await User.updateOne({ _id }, { deposit: new_deposit_value });
 
-    const userUpdated = await User.findById(id);
+    // const userUpdated = await User.findById(id);
 
     return res.status(200).json({
-      data: {
-        username: userUpdated?.username,
-        deposit: userUpdated?.deposit,
-      },
+      // eslint-disable-next-line max-len
+      message: `${deposit} cents was successfully deposited into your account`,
     });
   } catch (error) {
     return res.status(500).json({ error });
