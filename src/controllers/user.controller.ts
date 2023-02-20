@@ -3,14 +3,13 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import dotenv from "dotenv";
-dotenv.config();
+
 import { User, UserInput } from "../models/user.model";
 import Token from "../models/token.model";
+
+const envs = dotenv.config();
 // eslint-disable-next-line max-len
-const secretz: any =
-  !process.env.JWT_SECRET === undefined
-    ? process.env.JWT_SECRET
-    : "5ytjjfbPK8ZJ";
+const secretz: any = envs.parsed?.JWT_SECRET;
 // Generate Token
 const generateToken = (id: string) => {
   return jwt.sign({ id }, secretz, { expiresIn: "1d" });
@@ -170,8 +169,8 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   const { token } = req.cookies;
 
   // Verify Token
-  const jwt_secret = process.env?.JWT_SECRET ?? "5ytjjfbPK8ZJ";
-  const verified: any = jwt.verify(token, jwt_secret);
+  const jwt_secret = envs.parsed?.JWT_SECRET;
+  const verified: any = jwt.verify(token, jwt_secret!);
 
   // Validate Request
   if (!email || !password) {
