@@ -1,4 +1,4 @@
-import mongoose, { Document, Model } from 'mongoose';
+import mongoose, { Document, Model } from "mongoose";
 
 type ProductDocument = Document & {
   productName: string;
@@ -9,11 +9,11 @@ type ProductDocument = Document & {
 };
 
 type ProductInput = {
-  productName: ProductDocument['productName'];
-  sellerId: ProductDocument['sellerId'];
-  cost: ProductDocument['cost'];
-  amountAvailable: ProductDocument['amountAvailable'];
-  description: ProductDocument['description'];
+  productName: ProductDocument["productName"];
+  sellerId: ProductDocument["sellerId"];
+  cost: ProductDocument["cost"];
+  amountAvailable: ProductDocument["amountAvailable"];
+  description: ProductDocument["description"];
 };
 
 const productSchema = new mongoose.Schema(
@@ -21,35 +21,38 @@ const productSchema = new mongoose.Schema(
     sellerId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: 'User',
+      ref: "User",
     },
     productName: {
       type: mongoose.Schema.Types.String,
-      required: [true, 'Please add a name'],
+      required: [true, "Please add a name"],
       trim: true,
     },
     amountAvailable: {
       type: mongoose.Schema.Types.String,
-      required: [true, 'Please add a quantity'],
+      required: [true, "Please add a quantity"],
       trim: true,
     },
     cost: {
       type: mongoose.Schema.Types.String,
-      required: [true, 'Please add a price'],
+      required: [true, "Please add a price"],
       trim: true,
     },
     description: {
       type: mongoose.Schema.Types.String,
-      required: [true, 'Please add a description'],
+      required: [true, "Please add a description"],
       trim: true,
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 // eslint-disable-next-line max-len
-const Product: Model<ProductDocument> = mongoose.model<ProductDocument>('Product', productSchema);
+const Product: Model<ProductDocument> = mongoose.model<ProductDocument>(
+  "Product",
+  productSchema
+);
 
 export { Product, ProductInput, ProductDocument };

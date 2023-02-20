@@ -1,15 +1,35 @@
 import asyncHandler from "express-async-handler";
 import { Product } from "../models/product.model";
+import { User } from "../models/user.model";
 // Create Prouct
 
 export const createProduct = asyncHandler(async (req: any, res: any) => {
   const { amountAvailable, cost, description, productName, sellerId } =
     req.body;
 
+  // Validate that user is a seller
+  const { id } = req.user;
+
+  const user = await User.findOne({ _id: id }).populate("role").exec();
+
+  if (!user) {
+    return res.status(404).json({
+      message: `User with id ${id} not found.`,
+    });
+  }
+  // Extract role
+  const { role } = user;
+
+  //   Validations
+  if (role !== "seller") {
+    res.status(400).send({ error: "Only sellers can create products." });
+  }
+
   //   Validation
   if (!productName || !amountAvailable || !cost || !description || !sellerId) {
     res.status(400).send({ message: "Please fill in all fields" });
   }
+
   // Create Product
   const product = await Product.create({
     sellerId,

@@ -7,6 +7,7 @@ import { userRoute } from "./routes/user.routes";
 import { productRoute } from "./routes/product.routes";
 import { userDepositRoute } from "./routes/deposit.route";
 import { resetDepositRoute } from "./routes/reset.route";
+import { buyProductRoute } from "./routes/buy.route";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/", userRoute());
 app.use("/", productRoute());
 app.use("/", userDepositRoute());
 app.use("/", resetDepositRoute());
+app.use("/", buyProductRoute());
 app.get("/", (_req, res) => {
   const checkSystem = (server: string, client: string) => {
     return `${server} & ${client} are great combinations 😇`;
