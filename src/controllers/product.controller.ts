@@ -4,11 +4,11 @@ import { User } from "../models/user.model";
 // Create Prouct
 
 export const createProduct = asyncHandler(async (req: any, res: any) => {
-  const { amountAvailable, cost, description, productName, sellerId } =
-    req.body;
+  const { amountAvailable, cost, description, productName } = req.body;
 
   // Validate that user is a seller
   const { id } = req.user;
+  const sellerId = id;
 
   const user = await User.findOne({ _id: id }).populate("role").exec();
 
@@ -22,12 +22,12 @@ export const createProduct = asyncHandler(async (req: any, res: any) => {
 
   //   Validations
   if (role !== "seller") {
-    res.status(400).send({ error: "Only sellers can create products." });
+    return res.status(400).json({ error: "Only sellers can create products." });
   }
 
   //   Validation
   if (!productName || !amountAvailable || !cost || !description || !sellerId) {
-    res.status(400).send({ message: "Please fill in all fields" });
+    return res.status(400).json({ message: "Please fill in all fields" });
   }
 
   // Create Product
@@ -39,7 +39,7 @@ export const createProduct = asyncHandler(async (req: any, res: any) => {
     description,
   });
 
-  res.status(201).json(product);
+  return res.status(201).json(product);
 });
 
 // Get all Products
