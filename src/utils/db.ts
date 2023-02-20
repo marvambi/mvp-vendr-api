@@ -1,6 +1,7 @@
-import mongoose, { ConnectOptions } from 'mongoose';
-import config from '../config';
-
+import mongoose, { ConnectOptions } from "mongoose";
+import dotenv from "dotenv";
+const envs = dotenv.config();
+const conn_uri = envs.parsed?.MONGODB_URI_DEV;
 const connect = async () => {
   try {
     const options: ConnectOptions = {
@@ -11,7 +12,10 @@ const connect = async () => {
       family: 4,
     };
 
-    await mongoose.connect(config.mongodbURI, options);
+    if (conn_uri === undefined) {
+      return null;
+    }
+    await mongoose.connect(conn_uri, options);
   } catch (error) {
     console.error("Error: ", error);
     process.exit(1);
