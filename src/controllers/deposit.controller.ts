@@ -41,7 +41,12 @@ const createUserDeposit = asyncHandler(async (req: any, res: any) => {
 
     const userUpdated = await User.findById(id);
 
-    return res.status(200).json({ data: userUpdated });
+    return res.status(200).json({
+      data: {
+        username: userUpdated?.username,
+        deposit: userUpdated?.deposit,
+      },
+    });
   } catch (error) {
     return res.status(500).json({ error });
   }
