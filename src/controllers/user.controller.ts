@@ -189,7 +189,9 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
 
   if (user.id == verified.id) {
     // Already logged in
-    return res.status(400).json({ message: "Multiple login session active!" });
+    return res.status(400).json({
+      message: "There is already an active session using your account",
+    });
   }
 
   // User exists, check if password is correct
