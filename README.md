@@ -13,7 +13,7 @@ using Node.js with Typescript, ESLint and Prettier
 - Clone
 
 ```bash
-git clone install <project git repo> <optional project name>
+git clone <project git repo> <optional project name>
 ```
 
 - Install dependencies
