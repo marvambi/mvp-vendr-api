@@ -20,8 +20,9 @@ git clone <project git repo> <optional project name>
 
 ```bash
 cd <project name> && npm install
+mv .env.sample .env
 ```
-
+### Update the .env file with your unique details for the MONGODB_URI_DEV, etc
 - Start Application
 
 ```bash
