@@ -169,8 +169,12 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   const { token } = req.cookies;
 
   // Verify Token
-  const jwt_secret = envs.parsed?.JWT_SECRET;
-  const verified: any = jwt.verify(token, jwt_secret!);
+  // const jwt_secret = "5ytjjfbPK8ZJ";
+  let verified: any;
+
+  if (token !== undefined) {
+    verified = jwt.verify(token, "5ytjjfbPK8ZJ");
+  }
 
   // Validate Request
   if (!email || !password) {
@@ -186,7 +190,7 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
     });
   }
 
-  if (user.id == verified.id) {
+  if (user.id == verified?.id) {
     // Already logged in
     return res.status(400).json({
       message: "There is already an active session using your account",

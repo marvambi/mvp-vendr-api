@@ -7,7 +7,10 @@ const authr = asyncHandler(async (req: any, res: any, next) => {
     const { token } = req.cookies;
 
     if (!token) {
-      res.status(401).send({ message: "No authorization token, please login" });
+      // eslint-disable-next-line max-len
+      return res
+        .status(401)
+        .send({ message: "No authorization token, please login" });
     }
 
     // Verify Token
@@ -15,16 +18,15 @@ const authr = asyncHandler(async (req: any, res: any, next) => {
     // Get user id from token
     // es-lint disable next line
 
-    const user = await User.findById(verified.id).select("-password");
+    const user = await User.findById(verified?.id).select("-password");
 
     if (!user) {
-      res.status(401).send({ message: "User not found" });
+      return res.status(401).send({ message: "User not found" });
     }
     req.user = user;
     next();
   } catch (error) {
-    res.status(401);
-    throw new Error(`Error: ${error}`);
+    return res.status(401).json({ error });
   }
 });
 
