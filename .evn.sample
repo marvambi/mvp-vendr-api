@@ -1,0 +1,6 @@
+PORT=3000
+MONGODB_URI=mongodb+srv://<you username>:<Your password>@<your host>/<vender>?retryWrites=true&w=majority
+MONGODB_URI_DEV=mongodb://localhost:27017/vender
+NODE_ENV=development
+HOST=http://localhost
+JWT_SECRET=5ytjjfbPK8ZJ
