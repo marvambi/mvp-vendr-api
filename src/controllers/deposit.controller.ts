@@ -21,7 +21,7 @@ const createUserDeposit = asyncHandler(async (req: any, res: any) => {
 
     //   Validations
     if (role !== "buyer") {
-      return res.status(400).send({ error: "Only buyers can make deposits." });
+      return res.status(400).json({ error: "Only buyers can make deposits." });
     }
 
     // Check if deposit amount is valid

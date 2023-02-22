@@ -21,7 +21,9 @@ const authr = asyncHandler(async (req: any, res: any, next) => {
     const user = await User.findById(verified?.id).select("-password");
 
     if (!user) {
-      return res.status(401).send({ message: "User not found" });
+      return res
+        .status(401)
+        .send({ message: "User not found, please register" });
     }
     req.user = user;
     next();
