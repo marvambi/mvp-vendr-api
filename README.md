@@ -32,6 +32,7 @@ npm run start
 - Run Test
 ```
 cd <project root> && npm run test
+[optionally] 👉 npm run test -- --coverage --collectCoverageFrom="./src/**" 
 ```
 
 
