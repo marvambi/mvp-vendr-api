@@ -162,76 +162,80 @@ const deleteUser = async (req: Request, res: Response) => {
 
 // Login User
 const loginUser = asyncHandler(async (req: any, res: any) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  // Validate multiple login session
+    // Validate Request
+    if (!email || !password) {
+      return res.status(400).json("Please add email and password");
+    }
 
-  const { token } = req.cookies;
+    // Validate multiple login session
 
-  // Verify Token
-  // const jwt_secret = "5ytjjfbPK8ZJ";
-  let verified: any;
+    const { token } = req.cookies;
 
-  if (token !== undefined) {
-    verified = jwt.verify(token, "5ytjjfbPK8ZJ");
-  }
+    // Verify Token
+    // const jwt_secret = "5ytjjfbPK8ZJ";
+    let verified: any;
 
-  // Validate Request
-  if (!email || !password) {
-    return res.status(400).json("Please add email and password");
-  }
+    if (token) {
+      verified = jwt.verify(token, "5ytjjfbPK8ZJ");
+    }
 
-  // Check if user exists
-  const user = await User.findOne({ email });
+    // Check if user exists
+    const user = await User.findOne({ email });
 
-  if (!user) {
-    return res.status(400).json({
-      message: "User not found, please signup",
-    });
-  }
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found, please signup",
+      });
+    }
 
-  if (user.id == verified?.id) {
-    // Already logged in
-    return res.status(400).json({
-      message: "There is already an active session using your account",
-    });
-  }
+    if (verified?.id !== undefined && user.id == verified?.id) {
+      // Already logged in
+      return res.status(400).json({
+        message: "There is already an active session using your account",
+      });
+    }
 
-  // User exists, check if password is correct
-  const { salt } = user;
-  // eslint-disable-next-line max-len
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 100, 64, `sha512`)
-    .toString(`hex`);
-  const passwordIsCorrect = hash === user.password ? true : false;
+    // User exists, check if password is correct
+    const { salt } = user;
+    // eslint-disable-next-line max-len
+    const hash = crypto
+      .pbkdf2Sync(password, salt, 100, 64, `sha512`)
+      .toString(`hex`);
+    const passwordIsCorrect = hash === user.password ? true : false;
 
-  if (user && passwordIsCorrect) {
-    const { _id, email, enabled, role, username } = user;
+    if (user && passwordIsCorrect) {
+      const { _id, email, enabled, role, username } = user;
 
-    //   Generate Token
-    const token = generateToken(_id);
+      //   Generate Token
+      const token = generateToken(_id);
 
-    // Send HTTP-only cookie
-    res.cookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 86400), // 1 day
-      sameSite: "none",
-      secure: true,
-    });
+      // Send HTTP-only cookie
+      res.cookie("token", token, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 86400), // 1 day
+        sameSite: "none",
+        secure: true,
+      });
 
-    return res.status(200).json({
-      data: {
-        _id,
-        email,
-        enabled,
-        username,
-        role,
-        token,
-      },
-    });
-  } else {
-    return res.status(400).json({ message: "Invalid email or password" });
+      return res.status(200).json({
+        data: {
+          _id,
+          email,
+          enabled,
+          username,
+          role,
+          token,
+        },
+      });
+    } else {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+  } catch (error: any) {
+    return res.status(500).send({ message: error });
   }
 });
 
