@@ -29,6 +29,11 @@ mv .env.sample .env
 npm run start
 ```
 
+- Run Test
+```
+cd <project root> && npm run test
+```
+
 
 
 The application is configured to be launched by [Nodemon](https://nodemon.com)
