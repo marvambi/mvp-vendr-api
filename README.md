@@ -1,7 +1,7 @@
 # Node/Express Vender RESTful API
 
 This is the implementation for REST api for a react-store-front appllication
-using Node.js with Typescript, ESLint and Prettier
+using Node.js with Nodejs/Typescript/Express/MongoDB, ESLint and Prettier
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ using Node.js with Typescript, ESLint and Prettier
 - Clone
 
 ```bash
-git clone <project git repo> <optional project name>
+git clone git@github.com:marvambi/mvp-vendr-api.git <optional project name>
 ```
 
 - Install dependencies
