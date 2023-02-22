@@ -14,16 +14,14 @@ const createUserDeposit = asyncHandler(async (req: any, res: any) => {
     const user = await User.findOne({ _id: id }).populate("role").exec();
 
     if (!user) {
-      return res.status(404).json({
-        message: `User with id ${id} not found.`,
-      });
+      return res.status(404).send("User with id ${id} not found");
     }
     // Extract role
     const { _id, role } = user;
 
     //   Validations
     if (role !== "buyer") {
-      res.status(400).send({ error: "Only buyers can make deposits." });
+      return res.status(400).send({ error: "Only buyers can make deposits." });
     }
 
     // Check if deposit amount is valid

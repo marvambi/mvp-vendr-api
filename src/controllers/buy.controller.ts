@@ -6,8 +6,19 @@ import { Product } from "../models/product.model";
 
 const buyProduct = asyncHandler(async (req: any, res: any) => {
   try {
-    const { amount, productId } = req.body;
+    // Find the user by ID
     const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    // Check if the user exists and has enough deposit
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    if (user.role !== "buyer") {
+      return res.status(400).json({ error: "Only buyers can buy" });
+    }
+
+    const { amount, productId } = req.body;
 
     // Find the product by ID
     const product = await Product.findById(productId);
@@ -23,13 +34,6 @@ const buyProduct = asyncHandler(async (req: any, res: any) => {
     // Calculate the total cost of products buyer sent
     const totalCost = Number.parseInt(product.cost) * Number.parseInt(amount);
 
-    // Find the user by ID
-    const user = await User.findById(userId);
-
-    // Check if the user exists and has enough deposit
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
     if (user.deposit < totalCost) {
       return res.status(400).json({ error: "Not enough deposit" });
     }
@@ -51,7 +55,7 @@ const buyProduct = asyncHandler(async (req: any, res: any) => {
     // Update the product amount and user deposit
     // eslint-disable-next-line max-len
     const new_amount_available =
-      Number.parseInt(product.amountAvailable) - Number.parseInt(amount);
+      Number.parseInt(product.amountAvailable) - amount;
 
     await Product.updateOne(
       { _id: productId },
@@ -64,13 +68,13 @@ const buyProduct = asyncHandler(async (req: any, res: any) => {
     await User.updateOne({ _id: userId }, { deposit: new_deposit });
 
     // Return the response
-    res.json({
+    return res.json({
       total: totalCost,
       products: product.productName,
       change: changeCoins,
     });
   } catch (error) {
-    res.status(400).json({ message: "Product purchase failed" });
+    return res.status(400).json({ message: "Product purchase failed" });
   }
 });
 

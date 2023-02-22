@@ -23,69 +23,73 @@ const hashPassword = (password: string) => {
 };
 
 const createUser = asyncHandler(async (req: any, res: any) => {
-  const { deposit, email, enabled, password, role, username } = req.body;
+  try {
+    const { email, enabled, password, role, username } = req.body;
 
-  // Validation
-  if (!email || !username || !password || !role) {
-    return res.status(422).json({
-      message: "The fields email, username, password and role are required",
+    // Validation
+    if (!email || !username || !password || !role) {
+      return res.status(422).json({
+        message: "The fields email, username, password and role are required",
+      });
+    }
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be up to 6 characters",
+      });
+    }
+
+    // check if user already exists
+    const userExists = await User.findOne({ email });
+
+    if (userExists) {
+      return res.status(400).json({
+        message: "Email has already been registered",
+      });
+    }
+
+    const userInput: UserInput = {
+      username,
+      email,
+      password: hashPassword(password),
+      enabled,
+      role,
+      deposit: 0,
+      salt,
+    };
+
+    const userCreated = await User.create(userInput);
+
+    //   Generate Token
+    const token = generateToken(userCreated._id);
+    // Send HTTP-only cookie
+
+    res.cookie("token", token, {
+      path: "/",
+      httpOnly: true,
+      expires: new Date(Date.now() + 1000 * 86400), // 1 day
+      sameSite: "none",
+      secure: true,
     });
-  }
-  if (password.length < 6) {
-    return res.status(400).json({
-      message: "Password must be up to 6 characters",
-    });
-  }
+    if (userCreated) {
+      const { _id, email, enabled, role, username } = userCreated;
 
-  // check if user already exists
-  const userExists = await User.findOne({ email });
-
-  if (userExists) {
-    return res.status(400).json({
-      message: "Email has already been registered",
-    });
-  }
-
-  const userInput: UserInput = {
-    username,
-    email,
-    password: hashPassword(password),
-    enabled,
-    role,
-    deposit,
-    salt,
-  };
-
-  const userCreated = await User.create(userInput);
-
-  //   Generate Token
-  const token = generateToken(userCreated._id);
-  // Send HTTP-only cookie
-
-  res.cookie("token", token, {
-    path: "/",
-    httpOnly: true,
-    expires: new Date(Date.now() + 1000 * 86400), // 1 day
-    sameSite: "none",
-    secure: true,
-  });
-  if (userCreated) {
-    const { _id, email, enabled, role, username } = userCreated;
-
-    return res.status(201).json({
-      data: {
-        _id,
-        username,
-        email,
-        enabled,
-        role,
-        token,
-      },
-    });
-  } else {
-    res.status(400).json({
-      message: "Invalid user data",
-    });
+      return res.status(201).json({
+        data: {
+          _id,
+          username,
+          email,
+          enabled,
+          role,
+          token,
+        },
+      });
+    } else {
+      return res.status(400).json({
+        message: "Invalid user data",
+      });
+    }
+  } catch (error) {
+    return res.status(500).send("Server encountered an error");
   }
 });
 
@@ -235,7 +239,7 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
   } catch (error: any) {
-    return res.status(500).send({ message: error });
+    return res.status(500).send("Server encountered an error");
   }
 });
 
