@@ -12,7 +12,11 @@ import { buyProductRoute } from "./routes/buy.route";
 const app = express();
 
 const corsOptions = {
-  allowed_origins: ["http://localhost:3000", "http://localhost:3003/"],
+  allowed_origins: [
+    "http://localhost:3000",
+    "http://localhost:4000",
+    "http://localhost:3003",
+  ],
   credentials: true,
 };
 
@@ -20,8 +24,9 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 const ALLOWED_ORIGINS = [
-  "http://localhost/3000",
-  "https://main--darling-rolypoly-632b11.netlify.app",
+  "http://localhost:3000",
+  "http://localhost:4000",
+  "http://localhost:3003",
 ];
 
 app.use(cors(corsOptions));
