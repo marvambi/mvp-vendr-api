@@ -69,12 +69,27 @@ export const createProduct = async (
 };
 
 // Get all Products
-export const getProducts = asyncHandler(async (_req: any, res: any) => {
-  // eslint-disable-next-line max-len
-  const products = await Product.find({}).sort("-createdAt");
+export const getProducts = asyncHandler(
+  async (_req: Request, res: Response) => {
+    const products = await Product.find({}).sort("-createdAt");
+    const the_prods: Array<any> = [];
 
-  res.status(200).json(products);
-});
+    products.forEach((product) => {
+      const { _id, amountAvailable, cost, description, productName, sellerId } =
+        product;
+
+      the_prods.push({
+        _id,
+        sellerId,
+        productName,
+        amountAvailable,
+        cost,
+        description,
+      });
+    });
+    res.status(200).json(the_prods);
+  }
+);
 
 // Get single product
 const getAProd = asyncHandler(async (req: any, res: any) => {
