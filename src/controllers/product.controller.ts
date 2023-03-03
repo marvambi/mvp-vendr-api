@@ -92,14 +92,23 @@ export const getProducts = asyncHandler(
 );
 
 // Get single product
-const getAProd = asyncHandler(async (req: any, res: any) => {
+const getAProd = asyncHandler(async (req: Request, res: Response) => {
   const product = await Product.findById(req.params.id);
   // if product doesnt exist
 
   if (!product) {
     res.status(404).send({ message: "Product not found" });
   }
-  res.status(200).json(product);
+  const returnable_product = {
+    _id: product?._id,
+    amountAvailable: product?.amountAvailable,
+    cost: product?.cost,
+    description: product?.description,
+    productName: product?.productName,
+    sellerId: product?.sellerId,
+  };
+
+  res.status(200).json(returnable_product);
 });
 
 // Delete Product
