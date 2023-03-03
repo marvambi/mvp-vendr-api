@@ -1,46 +1,72 @@
+import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import { Product } from "../models/product.model";
 import { User } from "../models/user.model";
+
+import dotenv from "dotenv";
+const envs = dotenv.config();
 // Create Prouct
 
-export const createProduct = asyncHandler(async (req: any, res: any) => {
+export const createProduct = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   const { amountAvailable, cost, description, productName } = req.body;
 
   // Validate that user is a seller
-  const { id } = req.user;
-  const sellerId = id;
+  const { token } = req.cookies;
 
-  const user = await User.findOne({ _id: id }).populate("role").exec();
+  let verified: any;
+
+  const secrets: any = envs.parsed?.JWT_SECRET;
+
+  if (token) {
+    verified = jwt.verify(token, secrets);
+  }
+
+  let sellerId: string;
+  let user: any;
+
+  if (verified?.id !== undefined) {
+    sellerId = verified?.id;
+    user = await User.findOne({ _id: sellerId }).populate("role").exec();
+  }
 
   if (!user) {
     return res.status(404).json({
-      message: `User with id ${id} not found.`,
+      message: `User not found.`,
     });
   }
   // Extract role
-  const { role } = user;
+  const { _id, role } = user;
 
+  sellerId = _id;
   //   Validations
+
   if (role !== "seller") {
     return res.status(400).json({ error: "Only sellers can create products." });
   }
 
   //   Validation
-  if (!productName || !amountAvailable || !cost || !description || !sellerId) {
+  if (!productName || !amountAvailable || !cost || !description || !_id) {
     return res.status(400).json({ message: "Please fill in all fields" });
   }
 
   // Create Product
-  const product = await Product.create({
-    sellerId,
-    productName,
-    amountAvailable,
-    cost,
-    description,
-  });
+
+  const product = await Product.init().then(() =>
+    Product.create({
+      sellerId,
+      productName,
+      amountAvailable,
+      cost,
+      description,
+    })
+  );
 
   return res.status(201).json(product);
-});
+};
 
 // Get all Products
 export const getProducts = asyncHandler(async (_req: any, res: any) => {

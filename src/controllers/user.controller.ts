@@ -22,76 +22,78 @@ const hashPassword = (password: string) => {
   return crypto.pbkdf2Sync(password, salt, 100, 64, `sha512`).toString(`hex`);
 };
 
-const createUser = asyncHandler(async (req: any, res: any) => {
-  try {
-    const { email, enabled, password, role, username } = req.body;
+const createUser = asyncHandler(
+  async (req: Request, res: Response): Promise<any> => {
+    try {
+      const { email, enabled, password, role, username } = req.body;
 
-    // Validation
-    if (!email || !username || !password || !role) {
-      return res.status(422).json({
-        message: "The fields email, username, password and role are required",
+      // Validation
+      if (!email || !username || !password || !role) {
+        return res.status(422).json({
+          message: "The fields email, username, password and role are required",
+        });
+      }
+      if (password.length < 6) {
+        return res.status(400).json({
+          message: "Password must be up to 6 characters",
+        });
+      }
+
+      // check if user already exists
+      const userExists = await User.findOne({ email });
+
+      if (userExists) {
+        return res.status(400).json({
+          message: "Email has already been registered",
+        });
+      }
+
+      const userInput: UserInput = {
+        username,
+        email,
+        password: hashPassword(password),
+        enabled,
+        role,
+        deposit: 0,
+        salt,
+      };
+
+      const userCreated = await User.create(userInput);
+
+      //   Generate Token
+      const token = generateToken(userCreated._id);
+
+      // Send HTTP-only cookie
+      res.cookie("token", token, {
+        path: "/",
+        httpOnly: true,
+        expires: new Date(Date.now() + 1000 * 86400),
+        sameSite: "none",
+        secure: true,
       });
+      if (userCreated) {
+        const { _id, email, enabled, role, username } = userCreated;
+
+        return res.status(201).json({
+          data: {
+            _id,
+            username,
+            email,
+            enabled,
+            role,
+            token,
+          },
+        });
+      } else {
+        return res.status(400).json({
+          message: "Invalid user data",
+        });
+      }
+    } catch (error) {
+      return res.status(500).send("Server encountered an error");
     }
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: "Password must be up to 6 characters",
-      });
-    }
-
-    // check if user already exists
-    const userExists = await User.findOne({ email });
-
-    if (userExists) {
-      return res.status(400).json({
-        message: "Email has already been registered",
-      });
-    }
-
-    const userInput: UserInput = {
-      username,
-      email,
-      password: hashPassword(password),
-      enabled,
-      role,
-      deposit: 0,
-      salt,
-    };
-
-    const userCreated = await User.create(userInput);
-
-    //   Generate Token
-    const token = generateToken(userCreated._id);
-    // Send HTTP-only cookie
-
-    res.cookie("token", token, {
-      path: "/",
-      httpOnly: true,
-      expires: new Date(Date.now() + 1000 * 86400), // 1 day
-      sameSite: "none",
-      secure: true,
-    });
-    if (userCreated) {
-      const { _id, email, enabled, role, username } = userCreated;
-
-      return res.status(201).json({
-        data: {
-          _id,
-          username,
-          email,
-          enabled,
-          role,
-          token,
-        },
-      });
-    } else {
-      return res.status(400).json({
-        message: "Invalid user data",
-      });
-    }
-  } catch (error) {
-    return res.status(500).send("Server encountered an error");
   }
-});
+);
 
 const getAllUsers = async (_req: Request, res: Response) => {
   const users = await User.find().populate("role").sort("-createdAt").exec();
@@ -111,7 +113,7 @@ const getAllUsers = async (_req: Request, res: Response) => {
   return res.status(200).json({ data });
 };
 
-const getUser = asyncHandler(async (req: any, res: any) => {
+const getUser = async (req: Request, res: Response) => {
   const { id } = req.params;
 
   const user = await User.findOne({ _id: id }).populate("role").exec();
@@ -130,7 +132,7 @@ const getUser = asyncHandler(async (req: any, res: any) => {
       role,
     },
   });
-});
+};
 
 const updateUser = async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -165,7 +167,7 @@ const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Login User
-const loginUser = asyncHandler(async (req: any, res: any) => {
+const loginUser = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
 
@@ -183,7 +185,7 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
     let verified: any;
 
     if (token) {
-      verified = jwt.verify(token, "5ytjjfbPK8ZJ");
+      verified = jwt.verify(token, secretz);
     }
 
     // Check if user exists
@@ -241,105 +243,106 @@ const loginUser = asyncHandler(async (req: any, res: any) => {
   } catch (error: any) {
     return res.status(500).send("Server encountered an error");
   }
-});
+};
 
 // Logout User
-const logout = asyncHandler(async (_req: any, res: any) => {
-  res.cookie("token", "", {
-    path: "/",
-    httpOnly: true,
-    expires: new Date(0),
-    sameSite: "none",
-    secure: true,
-  });
-  return res.status(200).json({ message: "Successfully Logged Out" });
-});
+const logout = asyncHandler(
+  async (_req: Request, res: Response): Promise<any> => {
+    res.cookie("token", "", {
+      path: "/",
+      httpOnly: true,
+      expires: new Date(0),
+      sameSite: "none",
+      secure: true,
+    });
+    return res.status(200).json({ message: "Successfully Logged Out" });
+  }
+);
 
 // Get Login Status
-const loginStatus = asyncHandler(async (req: any, res: any) => {
+const loginStatus = async (req: Request, res: Response): Promise<any> => {
   const { token } = req.cookies;
 
-  console.log("Cookies: ", token);
   if (!token) {
     return res.json(false);
   }
   // Verify Token
-  const verified = jwt.verify(token, "5ytjjfbPK8ZJ");
+  // const verified = jwt.verify(token, secretz);
 
-  if (verified) {
+  if (jwt.verify(token, secretz)) {
     return res.json(true);
   }
-  return res.json(false);
-});
+};
 
 // Reset Password
-const resetPassword = asyncHandler(async (req, res) => {
-  const { password } = req.body;
-  const { resetToken } = req.params;
+const resetPassword = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const { password } = req.body;
+    const { resetToken } = req.params;
 
-  // Hash token, then compare to Token in DB
-  // eslint-disable-next-line max-len
-  const hashedToken = crypto
-    .createHash("sha256")
-    .update(resetToken)
-    .digest("hex");
+    // Hash token, then compare to Token in DB
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
 
-  // fIND tOKEN in DB
-  const userToken = await Token.findOne({
-    token: hashedToken,
-    expiresAt: { $gt: Date.now() },
-  });
+    // fIND tOKEN in DB
+    const userToken = await Token.findOne({
+      token: hashedToken,
+      expiresAt: { $gt: Date.now() },
+    });
 
-  if (!userToken) {
-    res.status(404);
-    throw new Error("Invalid or Expired Token");
+    if (!userToken) {
+      res.status(404);
+      throw new Error("Invalid or Expired Token");
+    }
+
+    // Find user
+    const user = await User.findOne({ _id: userToken.userId });
+
+    if (user) {
+      user.password = hashPassword(password);
+    }
+
+    await user?.save();
+    res.status(200).json({
+      message: "Password Reset Successful, Please Login",
+    });
   }
+);
 
-  // Find user
-  const user = await User.findOne({ _id: userToken.userId });
+const changePassword = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const user = await User.findOne({ _id: id });
+    const { oldPassword, password } = req.body;
 
-  if (user) {
-    user.password = hashPassword(password);
+    if (!user) {
+      res.status(400);
+      throw new Error("User not found, please signup");
+    }
+    //Validate
+    if (!oldPassword || !password) {
+      res.status(400).json({ message: "Please add old and new password" });
+    }
+
+    const { salt } = user;
+    // check if old password matches password in DB
+
+    const oldhash = crypto
+      .pbkdf2Sync(oldPassword, salt, 100, 64, `sha512`)
+      .toString(`hex`);
+
+    // Save new password
+    if (user && oldhash === user.password) {
+      user.password = hashPassword(password);
+      await user.save();
+      res.status(200).send("Password change successful");
+    } else {
+      res.status(400).json({ message: "Your old password is incorrect" });
+    }
   }
-
-  await user?.save();
-  res.status(200).json({
-    message: "Password Reset Successful, Please Login",
-  });
-});
-
-const changePassword = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const user = await User.findOne({ _id: id });
-  const { oldPassword, password } = req.body;
-
-  if (!user) {
-    res.status(400);
-    throw new Error("User not found, please signup");
-  }
-  //Validate
-  if (!oldPassword || !password) {
-    res.status(400).json({ message: "Please add old and new password" });
-  }
-
-  const { salt } = user;
-  // check if old password matches password in DB
-
-  // eslint-disable-next-line max-len
-  const oldhash = crypto
-    .pbkdf2Sync(oldPassword, salt, 100, 64, `sha512`)
-    .toString(`hex`);
-  const passwordIsCorrect = oldhash === user.password ? true : false;
-
-  // Save new password
-  if (user && passwordIsCorrect) {
-    user.password = hashPassword(password);
-    await user.save();
-    res.status(200).send("Password change successful");
-  } else {
-    res.status(400).json({ message: "Your old password is incorrect" });
-  }
-});
+);
 
 // eslint-disable-next-line max-len
 export {

@@ -2,6 +2,7 @@ import { Router } from "express";
 import authr from "../middlewares/auth.middleware";
 // eslint-disable-next-line max-len
 import {
+  changePassword,
   createUser,
   deleteUser,
   getAllUsers,
@@ -17,11 +18,13 @@ const userRoute = () => {
 
   router.post("/users", createUser);
 
-  router.get("/users", authr, getAllUsers);
+  router.get("/users", getAllUsers);
 
   router.get("/users/:id", authr, getUser);
 
   router.patch("/users/:id", authr, updateUser);
+
+  router.patch("/users/change/:id", authr, changePassword);
 
   router.delete("/users/:id", authr, deleteUser);
 

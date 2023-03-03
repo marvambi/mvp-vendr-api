@@ -3,8 +3,8 @@ import mongoose, { Document, Model } from "mongoose";
 type ProductDocument = Document & {
   productName: string;
   sellerId: string;
-  cost: string;
-  amountAvailable: string;
+  cost: number;
+  amountAvailable: number;
   description: string | null;
 };
 
@@ -24,19 +24,19 @@ const productSchema = new mongoose.Schema(
       ref: "User",
     },
     productName: {
-      type: mongoose.Schema.Types.String,
+      type: String,
       required: [true, "Please add a name"],
+      unique: true,
       trim: true,
+      strict: true,
     },
     amountAvailable: {
-      type: mongoose.Schema.Types.String,
+      type: mongoose.Schema.Types.Number,
       required: [true, "Please add a quantity"],
-      trim: true,
     },
     cost: {
-      type: mongoose.Schema.Types.String,
+      type: mongoose.Schema.Types.Number,
       required: [true, "Please add a price"],
-      trim: true,
     },
     description: {
       type: mongoose.Schema.Types.String,
@@ -48,7 +48,6 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 // eslint-disable-next-line max-len
 const Product: Model<ProductDocument> = mongoose.model<ProductDocument>(
   "Product",

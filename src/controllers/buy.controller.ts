@@ -27,12 +27,12 @@ const buyProduct = asyncHandler(async (req: any, res: any) => {
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    if (Number.parseInt(product.amountAvailable) < amount) {
+    if (product.amountAvailable < amount) {
       return res.status(400).json({ error: "Not enough products available" });
     }
 
     // Calculate the total cost of products buyer sent
-    const totalCost = Number.parseInt(product.cost) * Number.parseInt(amount);
+    const totalCost = product.cost * amount;
 
     if (user.deposit < totalCost) {
       return res.status(400).json({ error: "Not enough deposit" });
@@ -54,8 +54,7 @@ const buyProduct = asyncHandler(async (req: any, res: any) => {
 
     // Update the product amount and user deposit
     // eslint-disable-next-line max-len
-    const new_amount_available =
-      Number.parseInt(product.amountAvailable) - amount;
+    const new_amount_available = product.amountAvailable - amount;
 
     await Product.updateOne(
       { _id: productId },
