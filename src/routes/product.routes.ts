@@ -11,7 +11,7 @@ const productRoute = () => {
   const router = Router();
 
   router.post("/product", authr, createProduct);
-  router.patch("/product/:id", updateProduct);
+  router.patch("/product/:id", authr, updateProduct);
   router.get("/product", getProducts);
   router.get("/product/:id", getAProd.getAProd);
   router.delete("/product/:id", authr, deleteProduct);
