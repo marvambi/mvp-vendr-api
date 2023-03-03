@@ -206,13 +206,12 @@ const loginUser = async (req: Request, res: Response) => {
 
     // User exists, check if password is correct
     const { salt } = user;
-    // eslint-disable-next-line max-len
+
     const hash = crypto
       .pbkdf2Sync(password, salt, 100, 64, `sha512`)
       .toString(`hex`);
-    const passwordIsCorrect = hash === user.password ? true : false;
 
-    if (user && passwordIsCorrect) {
+    if (user && hash === user.password) {
       const { _id, email, enabled, role, username } = user;
 
       //   Generate Token
@@ -267,7 +266,6 @@ const loginStatus = async (req: Request, res: Response): Promise<any> => {
     return res.json(false);
   }
   // Verify Token
-  // const verified = jwt.verify(token, secretz);
 
   if (jwt.verify(token, secretz)) {
     return res.json(true);
