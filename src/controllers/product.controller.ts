@@ -207,11 +207,11 @@ export const updateProduct = asyncHandler(
 
     // if product doesnt exist
     if (!product) {
-      res.status(404).send({ message: "Product not found" });
+      return res.status(404).send({ message: "Product not found" });
     }
     // Match product to its user
     if (product?.sellerId.toString() !== sellerId) {
-      res.status(401).send({ message: "User not authorized" });
+      return res.status(401).send({ message: "User not authorized" });
     }
 
     // Update Product
@@ -229,7 +229,7 @@ export const updateProduct = asyncHandler(
       }
     );
 
-    res.status(200).json(updatedProduct);
+    return res.status(200).json(updatedProduct);
   }
 );
 
